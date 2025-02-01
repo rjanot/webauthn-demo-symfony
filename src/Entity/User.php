@@ -106,4 +106,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
     }
+
+    public function getUsername(): ?string
+    {
+        return $this->email;
+    }
+
+    public function getDisplayName(): string
+    {
+        return sprintf('User #%d (%s)', $this->id, $this->email);
+    }
 }

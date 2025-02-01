@@ -10,6 +10,7 @@
 
         {% block javascripts %}
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+            <script src="/client.js"></script>
         {% endblock %}
     </head>
     <body>
@@ -23,6 +24,9 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="{{ path('home') }}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{{ path('app_profile') }}">Profile</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('app_top_secret_area') }}">Top secret 🤫</a>
@@ -41,5 +45,11 @@
         <div class="container">
             {% block body %}{% endblock %}
         </div>
+
+        {% if is_granted("ROLE_USER") %}
+            <script>
+                document.cookie='lastLoggedInUserId={{ app.user.id }}'; // In real condition, save a more random string, like an uuid
+            </script>
+        {% endif %}
     </body>
 </html>

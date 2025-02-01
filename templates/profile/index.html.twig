@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Webauthn credentials</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Counter</th>
+            <th scope="col">Type</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for webauthnCredential in webauthnCredentials %}
+            <tr>
+                <th scope="row">{{ webauthnCredential.id }}</th>
+                <td>{{ webauthnCredential.counter }}</td>
+                <td>{{ webauthnCredential.type }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <button onclick="registerCredential()" class="btn btn-primary">Register my current device</button>
+{% endblock %}
