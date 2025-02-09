@@ -1,3 +1,4 @@
+// Utils
 const _fetch = async (path, payload = '') => {
     const headers = {
         'X-Requested-With': 'XMLHttpRequest',
@@ -12,7 +13,7 @@ const _fetch = async (path, payload = '') => {
         headers: headers,
         body: payload,
     });
-    if (res.status === 200) {
+    if (res.status === 200 || res.status === 201) {
         // Server authentication succeeded
         return res.json();
     } else {
@@ -37,8 +38,11 @@ function bufferToBase64URL(buffer) {
 }
 
 
-
-const registerCredential = async () => {
+/**
+ * REGISTER FLOW
+ */
+const registerStep1 = async () => {
+    // Retrieve options from Relying Party (server)
     const opts = {
         attestation: 'none',
         authenticatorSelection: {
@@ -47,90 +51,185 @@ const registerCredential = async () => {
             requireResidentKey: false
         }
     };
-    const options = await _fetch('/profile/security/devices/add/options', opts);
+    await askRelyingParty(opts);
+    return await _fetch('/profile/security/devices/add/options', opts);
+}
 
-    options.user.id = base64URLToBuffer(options.user.id);
-    options.challenge = base64URLToBuffer(options.challenge);
+const registerStep2 = async (payload) => {
+    // Visual Flow step only : response sent back to browser
+    await backToBrowser(payload);
 
-    if (options.excludeCredentials) {
-        for (let cred of options.excludeCredentials) {
+    return payload;
+}
+
+
+const registerStep3 = async (payload) => {
+    // Encode retrieved options to fulfill navigator.credentials Api need
+    await askAuthenticator(payload);
+    payload.user.id = base64URLToBuffer(payload.user.id);
+    payload.challenge = base64URLToBuffer(payload.challenge);
+
+    if (payload.excludeCredentials) {
+        for (let cred of payload.excludeCredentials) {
             cred.id = base64URLToBuffer(cred.id);
         }
     }
 
-    console.log(`const cred = await navigator.credentials.create({
-        publicKey: options,
-    });`)
-    console.log(options);
+    return payload;
+}
 
-    const cred = await navigator.credentials.create({
-        publicKey: options,
-    });
+const registerStep4 = async (payload) => {
+    // Ask for credential creation
+
+    try {
+        return  await navigator.credentials.create({
+            publicKey: payload,
+        });
+    } catch (error) {
+        alert(error);
+        throw error; // stop promise chain
+    }
+}
+
+const registerStep5 = async (payload) => {
+    // Visual Flow step only : response sent back to browser
+
+    await backToBrowser(payload);
+
+    return payload
+}
+
+
+const registerStep6 = async (payload) => {
+    // Send authenticator response to relying party
+    await askRelyingParty(payload);
 
     const credential = {};
-    credential.id = cred.id;
-    credential.rawId = bufferToBase64URL(cred.rawId);
-    credential.type = cred.type;
+    credential.id = payload.id;
+    credential.rawId = bufferToBase64URL(payload.rawId);
+    credential.type = payload.type;
 
-    if (cred.response) {
+    if (payload.response) {
         const clientDataJSON =
-            bufferToBase64URL(cred.response.clientDataJSON);
+            bufferToBase64URL(payload.response.clientDataJSON);
         const attestationObject =
-            bufferToBase64URL(cred.response.attestationObject);
+            bufferToBase64URL(payload.response.attestationObject);
         credential.response = {
             clientDataJSON,
             attestationObject,
         };
     }
 
-    localStorage.setItem(`credId`, credential.id);
+    return await _fetch('/profile/security/devices/add', credential);
+}
 
-    const toReturn = await _fetch('/profile/security/devices/add', credential);
-    console.log('await _fetch(\'/profile/security/devices/add\', credential)', toReturn);
+const registerStep7 = async (payload) => {
+    // Visual Flow step only : response sent back to browser
 
-    return toReturn;
+    await backToBrowser(payload);
+
+    return payload;
+}
+const registerStep8 = async (payload) => {
+    // this step is only because we display public keys on this page
+
+    document.location.reload();
+}
+
+const registerCredential = async () => {
+    const promises = [
+        registerStep1,
+        registerStep2,
+        registerStep3,
+        registerStep4,
+        registerStep5,
+        registerStep6,
+        registerStep7,
+        registerStep8,
+    ];
+    if (document.getElementById('stepByStep').checked) {
+        await promiseChainStepByStep(promises);
+    } else {
+        await promiseChain(promises);
+    }
 };
 
-const authenticate = async () => {
+const authenticateStep1 = async () => {
+    // Retrieve options from Relying Party (server)
     const opts = {};
 
-    let url = '/auth/signinRequest';
-    const credId = localStorage.getItem(`credId`);
-    if (credId) {
-        url += `?credId=${encodeURIComponent(credId)}`;
-    }
+    let url = '/assertion/options';
+    opts.username = localStorage.getItem("lastLoggedInUserEmail");
 
-    const options = await _fetch(url, opts);
+    await askRelyingParty(opts);
 
-    if (options.allowCredentials.length === 0) {
-        console.info('No registered credentials found.');
+    return await _fetch(url, opts);
+}
+
+const authenticateStep2 = async (payload) => {
+    // Visual Flow step only : response sent back to browser
+    await backToBrowser(payload);
+
+    return payload;
+}
+
+const authenticateStep3 = async (payload) => {
+    // Encode retrieved options to fulfill navigator.credentials Api need
+    await askAuthenticator(payload);
+
+    if (payload.allowCredentials.length === 0) {
+        alert('No registered credentials found.');
         return Promise.resolve(null);
     }
 
-    options.challenge = base64url.decode(options.challenge);
+    payload.challenge = base64URLToBuffer(payload.challenge);
 
-    for (let cred of options.allowCredentials) {
-        cred.id = base64url.decode(cred.id);
+    for (let cred of payload.allowCredentials) {
+        cred.id = base64URLToBuffer(cred.id);
     }
 
-    const cred = await navigator.credentials.get({
-        publicKey: options,
-    });
+    return payload;
+}
+
+const authenticateStep4 = async (payload) => {
+    // Ask for credential creation
+
+    try {
+        return  await navigator.credentials.get({
+            publicKey: payload,
+        });
+    } catch (error) {
+        alert(error);
+        throw error; // stop promise chain
+    }
+}
+
+const authenticateStep5 = async (payload) => {
+    // Visual Flow step only : response sent back to browser
+
+    await backToBrowser(payload);
+
+    return payload
+}
+
+const authenticateStep6 = async (payload) => {
+    // Send authenticator response to relying party
+    await askRelyingParty(payload);
 
     const credential = {};
-    credential.id = cred.id;
-    credential.type = cred.type;
-    credential.rawId = base64url.encode(cred.rawId);
+    credential.id = payload.id;
+    credential.type = payload.type;
+    credential.rawId = bufferToBase64URL(payload.rawId);
 
-    if (cred.response) {
+    if (payload.response) {
         const clientDataJSON =
-            base64url.encode(cred.response.clientDataJSON);
+            bufferToBase64URL(payload.response.clientDataJSON);
         const authenticatorData =
-            base64url.encode(cred.response.authenticatorData);
+            bufferToBase64URL(payload.response.authenticatorData);
         const signature =
-            base64url.encode(cred.response.signature);
+            bufferToBase64URL(payload.response.signature);
         const userHandle =
-            base64url.encode(cred.response.userHandle);
+            bufferToBase64URL(payload.response.userHandle);
         credential.response = {
             clientDataJSON,
             authenticatorData,
@@ -139,10 +238,40 @@ const authenticate = async () => {
         };
     }
 
-    return await _fetch(`/auth/signinResponse`, credential);
-};
+    try {
+        return await _fetch(`/assertion/result`, credential);
+    } catch (error) {
+        alert(error);
+    }
+}
 
-const unregisterCredential = async (credId) => {
-    localStorage.removeItem('credId');
-    return _fetch(`/auth/removeKey?credId=${encodeURIComponent(credId)}`);
+const authenticateStep7 = async (payload) => {
+    // Visual Flow step only : response sent back to browser
+
+    await backToBrowser(payload);
+
+    return payload;
+}
+const authenticateStep8 = async (payload) => {
+    // redirect to show app since we now are logged in
+
+    document.location = '/';
+}
+
+const authenticate = async () => {
+    const promises = [
+        authenticateStep1,
+        authenticateStep2,
+        authenticateStep3,
+        authenticateStep4,
+        authenticateStep5,
+        authenticateStep6,
+        authenticateStep7,
+        authenticateStep8,
+    ];
+    if (document.getElementById('stepByStep').checked) {
+        await promiseChainStepByStep(promises);
+    } else {
+        await promiseChain(promises);
+    }
 };

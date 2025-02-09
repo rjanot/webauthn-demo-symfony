@@ -21,4 +21,13 @@
         </tbody>
     </table>
     <button onclick="registerCredential()" class="btn btn-primary">Register my current device</button>
+
+    <footer>
+        {% include 'visualFlow.html.twig' %}
+    </footer>
+{% endblock %}
+
+{% block javascripts %}
+    {{parent() }}
+    <script src="/visualFlow/visualFlow.js"></script>
 {% endblock %}

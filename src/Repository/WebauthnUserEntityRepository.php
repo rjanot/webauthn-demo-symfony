@@ -33,7 +33,7 @@ final class WebauthnUserEntityRepository implements PublicKeyCredentialUserEntit
     {
         /** @var User|null $user */
         $user = $this->userRepository->findOneBy([
-            'id' => $userHandle,
+            'email' => $userHandle,
         ]);
 
         return $this->getUserEntity($user);

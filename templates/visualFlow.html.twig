@@ -1,0 +1,48 @@
+<div class="" id="visualFlow">
+    <div class="container mt-5">
+        <div class="p-5 text-center bg-body-tertiary rounded-3">
+            <h1 class="text-body-emphasis mb-2">Visual flow</h1>
+            <div class="position-relative">
+                <div class="d-flex align-items-center">
+                    <div id="actorAuthenticator">
+                        <img src="/visualFlow/fingerprint-svgrepo-com.svg" alt="Authenticator" class="me-5">
+                    </div>
+                    <div class="flex-grow-1">
+                        <hr>
+                    </div>
+                    <div id="actorBrowser">
+                        <img src="/visualFlow/browser-svgrepo-com.svg" alt="Browser" class="mx-5">
+                    </div>
+                    <div class="flex-grow-1">
+                        <hr>
+                    </div>
+                    <div id="actorRelyingParty">
+                        <img src="/visualFlow/server-svgrepo-com.svg" alt="Server" class="ms-5">
+                    </div>
+                </div>
+                <div class="mt-2 top-0 text-start">
+                    <span id="greenCircle">🟢</span>
+                </div>
+            </div>
+            <div class="row text-start mt-5">
+                <div class="col">
+                    <h3>Payload</h3>
+                    <div class="row">
+                        <code id="payloadContent" style="white-space: pre">
+
+                        </code>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="stepByStep" onchange="document.getElementById('stepByStepNextButton').disabled = !this.checked">
+                                <label class="form-check-label" for="stepByStep">Step By Step</label>
+                            </div>
+                            <button class="btn btn-primary" id="stepByStepNextButton" disabled>Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -42,7 +42,7 @@ security:
     access_control:
         - { path: ^/profile, roles: [IS_AUTHENTICATED_FULLY] }
         - { path: ^/top-secret-area, roles: [ROLE_USER, IS_USER_VERIFIED] }
-        - { path: ^/assertion, roles: PUBLIC_ACCESS, requires_channel: 'https'}
+        - { path: ^/assertion, roles: PUBLIC_ACCESS } #, requires_channel: 'https'}
 
 when@test:
     security:

@@ -1,0 +1,34 @@
+#visualFlow img{
+    width: 64px;
+}
+
+#greenCircle {
+    transition: all 2s ease-out;
+}
+
+#visualFlow.on-browser {
+
+}
+
+#greenCircle {
+    position:absolute;
+    left:50%;
+    margin-left:-10px;
+}
+
+.on-browser #greenCircle,
+.authenticator-to-browser #greenCircle,
+.relyingParty-to-browser #greenCircle {
+    left:50%;
+    margin-left:-10px;
+}
+
+.on-authenticator #greenCircle,
+.browser-to-authenticator #greenCircle {
+    left: 3%;
+}
+
+.on-relyingParty #greenCircle,
+.browser-to-relyingParty #greenCircle {
+    left: 97%;
+}
