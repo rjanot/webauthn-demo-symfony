@@ -45,11 +45,8 @@ const registerStep1 = async () => {
     // Retrieve options from Relying Party (server)
     const opts = {
         attestation: 'none',
-        authenticatorSelection: {
-            authenticatorAttachment: 'platform',
-            userVerification: 'required',
-            requireResidentKey: false
-        }
+        //residentKey: 'required', // used to do password less authentication
+        authenticatorAttachment: 'platform', // or 'cross-platform'
     };
     await askRelyingParty(opts);
     return await _fetch('/profile/security/devices/add/options', opts);
@@ -176,11 +173,6 @@ const authenticateStep2 = async (payload) => {
 const authenticateStep3 = async (payload) => {
     // Encode retrieved options to fulfill navigator.credentials Api need
     await askAuthenticator(payload);
-
-    if (payload.allowCredentials.length === 0) {
-        alert('No registered credentials found.');
-        return Promise.resolve(null);
-    }
 
     payload.challenge = base64URLToBuffer(payload.challenge);
 
