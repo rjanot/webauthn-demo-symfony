@@ -45,7 +45,7 @@ const registerStep1 = async () => {
     // Retrieve options from Relying Party (server)
     const opts = {
         attestation: 'none',
-        //residentKey: 'required', // used to do password less authentication
+        residentKey: 'required',
         authenticatorAttachment: 'platform', // or 'cross-platform'
     };
     await askRelyingParty(opts);
@@ -156,7 +156,6 @@ const authenticateStep1 = async () => {
     const opts = {};
 
     let url = '/assertion/options';
-    opts.username = localStorage.getItem("lastLoggedInUserEmail");
 
     await askRelyingParty(opts);
 
@@ -189,6 +188,7 @@ const authenticateStep4 = async (payload) => {
     try {
         return  await navigator.credentials.get({
             publicKey: payload,
+            mediation: 'conditional'
         });
     } catch (error) {
         alert(error);

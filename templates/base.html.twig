@@ -56,11 +56,5 @@
         <div class="container">
             {% block body %}{% endblock %}
         </div>
-
-        {% if is_granted("ROLE_USER") %}
-            <script>
-                localStorage.setItem('lastLoggedInUserEmail', '{{ app.user.email }}'); // In real condition, save a more random string, like an uuid
-            </script>
-        {% endif %}
     </body>
 </html>
