@@ -21,5 +21,6 @@ webauthn:
                 user_entity_guesser: Webauthn\Bundle\Security\Guesser\CurrentUserEntityGuesser # See above
                 hide_existing_credentials: false
 
+    # Please be careful using the next feature. It should NOT be used in production. It is only intended to test on localhost
     secured_rp_ids:
         - 'localhost'
