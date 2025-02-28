@@ -37,15 +37,15 @@
                             <a class="nav-link active" aria-current="page" href="{{ path('home') }}">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="{{ path('app_profile') }}">Profile</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" href="{{ path('app_top_secret_area') }}">Top secret 🤫</a>
                         </li>
                     </ul>
                     <div class="d-flex">
                         {% if is_granted("ROLE_USER") %}
-                            Hi {{ app.user.email }} ! <a class="nav-link" href="/logout">【﻿⏻】</a>
+                            Hi {{ app.user.email }} !
+                            <a class="nav-link active ms-5 me-3" aria-current="page" href="{{ path('app_profile') }}">Profile</a>
+
+                            <a class="nav-link" href="/logout">【﻿⏻】</a>
                         {% else %}
                             Hi visitor !
                         {% endif %}
